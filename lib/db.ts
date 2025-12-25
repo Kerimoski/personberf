@@ -9,7 +9,7 @@ const globalForPrisma = global as unknown as {
 
 if (!globalForPrisma.pool) {
   globalForPrisma.pool = new Pool({
-    connectionString: "postgresql://kerimoski@localhost:5432/perssite"
+    connectionString: process.env.DATABASE_URL
   })
 }
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { Footer } from "@/components/footer"
 import { cn } from "@/lib/utils"
 
@@ -37,14 +37,14 @@ export default function AddProduct() {
             try {
                 setIsUploadingImage(true)
                 console.log("Starting image upload...")
-                const res = await fetch("/api/upload", {
+                await fetch("/api/upload", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ file: base64 })
                 })
                 // ... rest of the code is the same but inside try finally
-            } catch (error) {
-                // ...
+            } catch {
+                console.error("Image upload failed")
             } finally {
                 setIsUploadingImage(false)
             }

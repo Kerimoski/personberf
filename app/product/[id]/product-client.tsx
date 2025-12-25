@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ArrowLeft, ShoppingBag } from "lucide-react"
-import { useState, useEffect, use } from "react"
+import { useState } from "react"
 import { useCart } from "@/context/cart-context"
 
 interface Product {

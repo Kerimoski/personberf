@@ -37,29 +37,28 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     })
 
     useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch(`/api/products/${id}`)
+                const data: Product = await res.json()
+
+                setFormData({
+                    title: data.title,
+                    description: data.description,
+                    size: data.size,
+                    price: data.price.toString(),
+                    imageUrl: data.imageUrl,
+                    imagePublicId: data.imagePublicId
+                })
+                setImagePreview(data.imageUrl)
+            } catch (error) {
+                console.error("Error fetching product:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
         fetchProduct()
     }, [id])
-
-    const fetchProduct = async () => {
-        try {
-            const res = await fetch(`/api/products/${id}`)
-            const data: Product = await res.json()
-
-            setFormData({
-                title: data.title,
-                description: data.description,
-                size: data.size,
-                price: data.price.toString(),
-                imageUrl: data.imageUrl,
-                imagePublicId: data.imagePublicId
-            })
-            setImagePreview(data.imageUrl)
-        } catch (error) {
-            console.error("Error fetching product:", error)
-        } finally {
-            setIsLoading(false)
-        }
-    }
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]

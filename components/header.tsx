@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { ShoppingBag, X, Plus, Minus, Send } from "lucide-react"
+import { ShoppingBag, Plus, Minus, Send } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import {
     Sheet,
@@ -31,7 +31,13 @@ export function Header({ initialLogoData }: HeaderProps) {
     const { items, removeFromCart, addToCart, totalPrice, totalItems } = useCart()
 
     useEffect(() => {
-        setMounted(true)
+        const timer = setTimeout(() => {
+            setMounted(true)
+        }, 0)
+        return () => clearTimeout(timer)
+    }, [])
+
+    useEffect(() => {
         if (!initialLogoData) {
             fetch('/api/logo')
                 .then(res => res.ok ? res.json() : Promise.reject())

@@ -32,7 +32,7 @@ export default function AdminLogin() {
                 router.push("/admin/dashboard")
                 router.refresh()
             }
-        } catch (error) {
+        } catch {
             setError("Bir hata oluştu")
         } finally {
             setIsLoading(false)
