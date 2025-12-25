@@ -1,9 +1,4 @@
-import { readFile } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
-
-const LOGO_PATH = join(process.cwd(), "public", "logo.png")
-const LOGO_TEXT_PATH = join(process.cwd(), "public", "logo-text.json")
+import { db } from "./db"
 
 export interface LogoData {
     hasLogo: boolean
@@ -13,31 +8,28 @@ export interface LogoData {
 }
 
 export async function getLogoSettings(): Promise<LogoData> {
-    let logoText = "STUDIO"
-    let hasLogo = false
-    let url = null
-    let showBoth = false
-
     try {
-        if (existsSync(LOGO_TEXT_PATH)) {
-            const textData = await readFile(LOGO_TEXT_PATH, 'utf-8')
-            const parsed = JSON.parse(textData)
-            logoText = parsed.text || "STUDIO"
-            showBoth = !!parsed.showBoth
-        }
+        const settings = await db.settings.findUnique({
+            where: { id: "site-settings" }
+        })
 
-        if (existsSync(LOGO_PATH)) {
-            hasLogo = true
-            url = `/logo.png?t=${Date.now()}`
+        if (settings) {
+            return {
+                hasLogo: !!settings.logoUrl,
+                url: settings.logoUrl,
+                logoText: settings.logoText,
+                showBoth: settings.showBoth
+            }
         }
     } catch (error) {
-        console.error("Error reading logo settings:", error)
+        console.error("Error reading logo settings from DB:", error)
     }
 
+    // Default values if no settings found
     return {
-        hasLogo,
-        url,
-        logoText,
-        showBoth
+        hasLogo: false,
+        url: null,
+        logoText: "STUDIO",
+        showBoth: false
     }
 }

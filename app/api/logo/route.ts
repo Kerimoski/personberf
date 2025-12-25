@@ -1,53 +1,39 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { writeFile, readFile, unlink } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
+import { db } from "@/lib/db"
+import { v2 as cloudinary } from "cloudinary"
 
-const LOGO_PATH = join(process.cwd(), "public", "logo.png")
-const LOGO_TEXT_PATH = join(process.cwd(), "public", "logo-text.json")
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
 // GET logo and text
 export async function GET() {
     try {
-        let logoText = "STUDIO" // default
-        let showBoth = false
+        const settings = await db.settings.findUnique({
+            where: { id: "site-settings" }
+        })
 
-        // Check for custom settings
-        try {
-            if (existsSync(LOGO_TEXT_PATH)) {
-                const textData = await readFile(LOGO_TEXT_PATH, 'utf-8')
-                const parsed = JSON.parse(textData)
-                logoText = parsed.text || "STUDIO"
-                showBoth = !!parsed.showBoth
-            }
-        } catch (textError) {
-            console.error("Error reading logo settings:", textError)
-        }
-
-        // Check for logo image
-        try {
-            if (existsSync(LOGO_PATH)) {
-                return NextResponse.json({
-                    hasLogo: true,
-                    url: `/logo.png?t=${Date.now()}`,
-                    logoText,
-                    showBoth
-                })
-            }
-        } catch (logoError) {
-            console.error("Error reading logo image:", logoError)
+        if (!settings) {
+            return NextResponse.json({
+                hasLogo: false,
+                logoText: "STUDIO",
+                showBoth: false
+            })
         }
 
         return NextResponse.json({
-            hasLogo: false,
-            logoText,
-            showBoth
+            hasLogo: !!settings.logoUrl,
+            url: settings.logoUrl,
+            logoText: settings.logoText,
+            showBoth: settings.showBoth
         })
     } catch (error) {
         console.error("Critical error in logo GET:", error)
-        // Always return valid JSON, never let this throw
         return NextResponse.json({
             hasLogo: false,
             logoText: "STUDIO",
@@ -56,93 +42,89 @@ export async function GET() {
     }
 }
 
-// POST upload logo
+// POST update logo/text
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions)
 
         if (!session) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            )
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
         const body = await req.json()
 
         // Handle settings update (text or showBoth)
         if (body.text !== undefined || body.showBoth !== undefined) {
-            let currentSettings = { text: "STUDIO", showBoth: false }
-            if (existsSync(LOGO_TEXT_PATH)) {
-                const data = await readFile(LOGO_TEXT_PATH, 'utf-8')
-                currentSettings = JSON.parse(data)
-            }
+            const settings = await db.settings.upsert({
+                where: { id: "site-settings" },
+                update: {
+                    ...(body.text !== undefined && { logoText: body.text }),
+                    ...(body.showBoth !== undefined && { showBoth: body.showBoth })
+                },
+                create: {
+                    id: "site-settings",
+                    logoText: body.text || "STUDIO",
+                    showBoth: body.showBoth || false
+                }
+            })
 
-            const newSettings = {
-                ...currentSettings,
-                ...(body.text !== undefined && { text: body.text }),
-                ...(body.showBoth !== undefined && { showBoth: body.showBoth })
-            }
-
-            await writeFile(LOGO_TEXT_PATH, JSON.stringify(newSettings))
             return NextResponse.json({
                 success: true,
-                ...newSettings
+                text: settings.logoText,
+                showBoth: settings.showBoth
             })
         }
 
-        // Handle logo image upload
+        // Handle logo image upload to Cloudinary
         if (body.file) {
-            const base64Data = body.file.replace(/^data:image\/\w+;base64,/, "")
-            const buffer = Buffer.from(base64Data, 'base64')
+            const uploadResponse = await cloudinary.uploader.upload(body.file, {
+                folder: "art-gallery-logo",
+                resource_type: "auto"
+            })
 
-            if (existsSync(LOGO_PATH)) {
-                await unlink(LOGO_PATH)
-            }
-
-            await writeFile(LOGO_PATH, buffer)
+            const settings = await db.settings.upsert({
+                where: { id: "site-settings" },
+                update: {
+                    logoUrl: uploadResponse.secure_url
+                },
+                create: {
+                    id: "site-settings",
+                    logoUrl: uploadResponse.secure_url,
+                    logoText: "STUDIO",
+                    showBoth: false
+                }
+            })
 
             return NextResponse.json({
                 success: true,
-                url: `/logo.png?t=${Date.now()}`
+                url: settings.logoUrl
             })
         }
 
-        return NextResponse.json(
-            { error: "No file or text provided" },
-            { status: 400 }
-        )
+        return NextResponse.json({ error: "No data provided" }, { status: 400 })
     } catch (error) {
-        console.error("Error uploading logo:", error)
-        return NextResponse.json(
-            { error: "Failed to upload logo" },
-            { status: 500 }
-        )
+        console.error("Error updating logo settings:", error)
+        return NextResponse.json({ error: "Failed to update logo" }, { status: 500 })
     }
 }
 
 // DELETE logo
-export async function DELETE(req: Request) {
+export async function DELETE() {
     try {
         const session = await getServerSession(authOptions)
 
         if (!session) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            )
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        if (existsSync(LOGO_PATH)) {
-            await unlink(LOGO_PATH)
-        }
+        await db.settings.update({
+            where: { id: "site-settings" },
+            data: { logoUrl: null }
+        })
 
         return NextResponse.json({ success: true })
     } catch (error) {
         console.error("Error deleting logo:", error)
-        return NextResponse.json(
-            { error: "Failed to delete logo" },
-            { status: 500 }
-        )
+        return NextResponse.json({ error: "Failed to delete logo" }, { status: 500 })
     }
 }
