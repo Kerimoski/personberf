@@ -7,6 +7,6 @@ export default defineConfig({
         path: "prisma/migrations",
     },
     datasource: {
-        url: "postgresql://kerimoski@localhost:5432/perssite",
+        url: process.env.DATABASE_URL,
     },
 })
