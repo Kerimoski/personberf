@@ -18,17 +18,22 @@ interface Product {
   updatedAt: string
 }
 
+import { db } from "@/lib/db"
+
 async function getProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/products`, {
-      cache: 'no-store'
+    const products = await db.product.findMany({
+      where: {
+        isPublished: true
+      },
+      orderBy: [
+        { isSold: "asc" },
+        { order: "asc" }
+      ]
     })
 
-    if (!res.ok) {
-      return []
-    }
-
-    return res.json()
+    // Convert Dates to strings to match the interface and avoid serialization issues
+    return JSON.parse(JSON.stringify(products))
   } catch (error) {
     console.error('Error fetching products:', error)
     return []

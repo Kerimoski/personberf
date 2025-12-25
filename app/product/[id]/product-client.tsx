@@ -20,7 +20,7 @@ interface Product {
 }
 
 interface ProductClientProps {
-    id: string
+    initialProduct: Product
     initialLogoData: {
         hasLogo: boolean
         url: string | null
@@ -29,31 +29,9 @@ interface ProductClientProps {
     }
 }
 
-export function ProductClient({ id, initialLogoData }: ProductClientProps) {
-    const [product, setProduct] = useState<Product | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+export function ProductClient({ initialProduct, initialLogoData }: ProductClientProps) {
+    const [product] = useState<Product>(initialProduct)
     const { addToCart } = useCart()
-
-    useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                const res = await fetch(`/api/products/${id}`)
-                if (res.ok) {
-                    const data = await res.json()
-                    setProduct(data)
-                }
-            } catch (error) {
-                console.error('Error fetching product:', error)
-            } finally {
-                setIsLoading(false)
-            }
-        }
-        fetchProduct()
-    }, [id])
-
-    if (isLoading) {
-        return <div className="min-h-screen bg-white flex items-center justify-center">Yükleniyor...</div>
-    }
 
     if (!product) {
         notFound()
