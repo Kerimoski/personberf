@@ -37,12 +37,20 @@ export default function AddProduct() {
             try {
                 setIsUploadingImage(true)
                 console.log("Starting image upload...")
-                await fetch("/api/upload", {
+                const res = await fetch("/api/upload", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ file: base64 })
                 })
-                // ... rest of the code is the same but inside try finally
+
+                if (res.ok) {
+                    const data = await res.json()
+                    setFormData(prev => ({
+                        ...prev,
+                        imageUrl: data.url,
+                        imagePublicId: data.publicId
+                    }))
+                }
             } catch {
                 console.error("Image upload failed")
             } finally {

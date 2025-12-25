@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 import { v2 as cloudinary } from "cloudinary"
 
 // Configure Cloudinary
@@ -68,6 +69,8 @@ export async function POST(req: Request) {
                 }
             })
 
+            revalidatePath("/")
+
             return NextResponse.json({
                 success: true,
                 text: settings.logoText,
@@ -95,6 +98,8 @@ export async function POST(req: Request) {
                 }
             })
 
+            revalidatePath("/")
+
             return NextResponse.json({
                 success: true,
                 url: settings.logoUrl
@@ -121,6 +126,8 @@ export async function DELETE() {
             where: { id: "site-settings" },
             data: { logoUrl: null }
         })
+
+        revalidatePath("/")
 
         return NextResponse.json({ success: true })
     } catch (error) {

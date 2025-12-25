@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 // GET all products (public/admin)
 export async function GET() {
@@ -12,10 +13,9 @@ export async function GET() {
             where: session ? {} : {
                 isPublished: true
             },
-            orderBy: [
-                { isSold: "asc" },
-                { order: "asc" }
-            ]
+            orderBy: {
+                order: 'asc'
+            }
         })
         return NextResponse.json(products)
     } catch (error) {
@@ -61,6 +61,9 @@ export async function POST(req: Request) {
                 order: nextOrder
             }
         })
+
+        revalidatePath("/")
+        revalidatePath("/admin/dashboard")
 
         return NextResponse.json(product, { status: 201 })
     } catch (error) {
