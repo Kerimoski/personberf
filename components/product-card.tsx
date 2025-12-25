@@ -15,16 +15,18 @@ interface ProductCardProps {
 import { Plus } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { Button } from "@/components/ui/button"
+import { optimizeImage } from "@/lib/utils"
 
 export function ProductCard({ id, title, size, price, imageUrl, isSold }: ProductCardProps) {
     const { addToCart } = useCart()
+    const optimizedImageUrl = optimizeImage(imageUrl, 600) // Optimize for typical card width
 
     return (
         <div className={`group relative flex flex-col bg-white rounded-2xl border border-neutral-100 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-2 overflow-hidden ${isSold ? 'opacity-90' : ''}`}>
             {/* Image Wrapper */}
             <Link href={`/product/${id}`} className="relative aspect-[4/5] overflow-hidden">
                 <Image
-                    src={imageUrl}
+                    src={optimizedImageUrl}
                     alt={title}
                     fill
                     className={`object-cover transition-transform duration-700 ${isSold ? '' : 'group-hover:scale-110'}`}

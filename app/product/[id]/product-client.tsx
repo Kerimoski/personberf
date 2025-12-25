@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer"
 import { ArrowLeft, ShoppingBag } from "lucide-react"
 import { useState } from "react"
 import { useCart } from "@/context/cart-context"
+import { optimizeImage } from "@/lib/utils"
 
 interface Product {
     id: string
@@ -53,7 +54,7 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                     {/* Image */}
                     <div className="relative aspect-[3/4] bg-neutral-50 rounded-2xl overflow-hidden shadow-2xl">
                         <Image
-                            src={product.imageUrl}
+                            src={optimizeImage(product.imageUrl, 1200)}
                             alt={product.title}
                             fill
                             className="object-cover"

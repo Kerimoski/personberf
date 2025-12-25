@@ -13,6 +13,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+import { optimizeImage } from "@/lib/utils"
 
 interface HeaderProps {
     initialLogoData?: {
@@ -63,10 +64,13 @@ export function Header({ initialLogoData }: HeaderProps) {
                 <Link href="/" className="flex items-center gap-2 group">
                     {logoUrl && (
                         <div className="relative h-8 w-auto min-w-[2rem] max-w-[120px] flex items-center">
-                            <img
-                                src={logoUrl}
+                            <Image
+                                src={optimizeImage(logoUrl, 240)}
                                 alt="Logo"
+                                height={32}
+                                width={120}
                                 className="h-full w-auto object-contain"
+                                priority
                             />
                         </div>
                     )}
