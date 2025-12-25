@@ -13,9 +13,10 @@ export async function GET() {
             where: session ? {} : {
                 isPublished: true
             },
-            orderBy: {
-                order: 'asc'
-            }
+            orderBy: [
+                { isSold: "asc" },
+                { order: "asc" }
+            ]
         })
         return NextResponse.json(products)
     } catch (error) {

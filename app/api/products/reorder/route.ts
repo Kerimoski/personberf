@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 export async function PATCH(req: Request) {
     try {
@@ -41,6 +42,7 @@ export async function PATCH(req: Request) {
         if (direction === 'up') {
             siblingProduct = await db.product.findFirst({
                 where: {
+                    isSold: currentProduct.isSold,
                     order: {
                         lt: currentOrder
                     }
@@ -52,6 +54,7 @@ export async function PATCH(req: Request) {
         } else if (direction === 'down') {
             siblingProduct = await db.product.findFirst({
                 where: {
+                    isSold: currentProduct.isSold,
                     order: {
                         gt: currentOrder
                     }
@@ -63,7 +66,7 @@ export async function PATCH(req: Request) {
         }
 
         if (!siblingProduct) {
-            console.log(`REORDER: No sibling found for ${direction} move.`)
+            console.log(`REORDER: No sibling found for ${direction} move in group isSold:${currentProduct.isSold}`)
             return NextResponse.json({ message: "Already at the limit" }, { status: 200 })
         }
 
@@ -80,6 +83,10 @@ export async function PATCH(req: Request) {
                 data: { order: currentOrder }
             })
         ])
+
+        revalidatePath("/")
+        revalidatePath("/admin/dashboard")
+
         console.log("REORDER: Swap complete.")
 
         return NextResponse.json({ success: true })

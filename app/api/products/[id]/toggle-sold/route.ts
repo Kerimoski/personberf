@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -22,6 +23,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
             where: { id },
             data: { isSold }
         })
+
+        revalidatePath("/")
+        revalidatePath("/admin/dashboard")
 
         return NextResponse.json(product)
     } catch (error) {
