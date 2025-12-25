@@ -25,6 +25,7 @@ interface ProductClientProps {
         hasLogo: boolean
         url: string | null
         logoText: string
+        showBoth: boolean
     }
 }
 
