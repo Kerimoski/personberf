@@ -29,6 +29,10 @@ interface ProductClientProps {
         url: string | null
         logoText: string
         showBoth: boolean
+        detailTitleSize?: string
+        detailTitleWeight?: string
+        detailPriceSize?: string
+        detailPriceWeight?: string
     }
 }
 
@@ -41,10 +45,10 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
     }
 
     return (
-        <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-white flex flex-col">
             <Header initialLogoData={initialLogoData} />
 
-            <div className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4 py-24 flex-grow">
                 {/* Back Button */}
                 <Link href="/" className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black mb-12 transition-colors">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -68,7 +72,13 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                     {/* Product Info */}
                     <div className="flex flex-col justify-center max-w-lg">
                         <div className="mb-10">
-                            <h1 className="text-5xl font-extrabold text-black tracking-tighter mb-4 leading-tight">
+                            <h1
+                                className="text-5xl font-extrabold text-black tracking-tighter mb-4 leading-tight"
+                                style={{
+                                    fontSize: initialLogoData.detailTitleSize || "3rem",
+                                    fontWeight: initialLogoData.detailTitleWeight || "800"
+                                }}
+                            >
                                 {product.title}
                             </h1>
                             <div className="flex flex-col gap-2">
@@ -99,7 +109,13 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                         <div className="flex flex-col sm:flex-row items-center gap-6 mt-auto pt-10 border-t border-neutral-100">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Fiyat</span>
-                                <span className="text-3xl font-bold text-black">
+                                <span
+                                    className="text-3xl font-bold text-black"
+                                    style={{
+                                        fontSize: initialLogoData.detailPriceSize || "1.875rem",
+                                        fontWeight: initialLogoData.detailPriceWeight || "700"
+                                    }}
+                                >
                                     {product.price.toLocaleString('tr-TR')} ₺
                                 </span>
                             </div>

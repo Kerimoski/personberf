@@ -24,7 +24,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Pencil, Trash2, Plus, LogOut, Upload, X, AlertCircle, ChevronUp, ChevronDown, CheckCircle2, Eye, EyeOff } from "lucide-react"
+import { Pencil, Trash2, Plus, LogOut, Upload, X, AlertCircle, ChevronUp, ChevronDown, CheckCircle2, Eye, EyeOff, Type, Settings2 } from "lucide-react"
+import { toast } from "sonner"
 
 interface Product {
     id: string
@@ -58,9 +59,24 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [deleteId, setDeleteId] = useState<string | null>(null)
     const [isUploadingLogo, setIsUploadingLogo] = useState(false)
+    const [typography, setTypography] = useState({
+        cardTitleSize: "17px",
+        cardTitleWeight: "bold",
+        cardTechniqueSize: "10px",
+        cardTechniqueWeight: "bold",
+        cardPriceSize: "18px",
+        cardPriceWeight: "bold",
+        cardDetailSize: "10px",
+        cardDetailWeight: "bold",
+        detailTitleSize: "48px",
+        detailTitleWeight: "extrabold",
+        detailPriceSize: "30px",
+        detailPriceWeight: "bold"
+    })
 
     useEffect(() => {
         fetchProducts()
+        fetchSettings()
     }, [])
 
     const fetchProducts = async () => {
@@ -81,6 +97,37 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
             setProducts([])
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch("/api/logo")
+            if (res.ok) {
+                const data = await res.json()
+                setLogoText(data.logoText || "STUDIO")
+                setLogoTextInput(data.logoText || "STUDIO")
+                setShowBoth(data.showBoth || false)
+                setLogoUrl(data.url)
+                if (data.cardTitleSize) {
+                    setTypography({
+                        cardTitleSize: data.cardTitleSize,
+                        cardTitleWeight: data.cardTitleWeight,
+                        cardTechniqueSize: data.cardTechniqueSize,
+                        cardTechniqueWeight: data.cardTechniqueWeight,
+                        cardPriceSize: data.cardPriceSize,
+                        cardPriceWeight: data.cardPriceWeight,
+                        cardDetailSize: data.cardDetailSize,
+                        cardDetailWeight: data.cardDetailWeight,
+                        detailTitleSize: data.detailTitleSize,
+                        detailTitleWeight: data.detailTitleWeight,
+                        detailPriceSize: data.detailPriceSize,
+                        detailPriceWeight: data.detailPriceWeight
+                    })
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching settings:", error)
         }
     }
 
@@ -136,7 +183,7 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
 
     const handleLogoTextSave = async () => {
         if (!logoTextInput.trim()) {
-            alert("Lütfen bir text girin")
+            toast.error("Lütfen bir text girin")
             return
         }
 
@@ -149,12 +196,13 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
 
             if (res.ok) {
                 setLogoText(logoTextInput)
+                toast.success("Logo metni başarıyla kaydedildi")
             } else {
-                alert("Text kaydedilirken hata oluştu")
+                toast.error("Metin kaydedilemedi")
             }
         } catch (error) {
             console.error("Error saving logo text:", error)
-            alert("Text kaydedilirken hata oluştu")
+            toast.error("Bir hata oluştu")
         }
     }
 
@@ -169,12 +217,35 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
 
             if (res.ok) {
                 setShowBoth(newStatus)
+                toast.success("Görünüm ayarı güncellendi")
             } else {
-                alert("Ayar kaydedilirken hata oluştu")
+                toast.error("Ayar kaydedilemedi")
             }
         } catch (error) {
             console.error("Error toggling showBoth:", error)
-            alert("Ayar kaydedilirken hata oluştu")
+            toast.error("Ayar kaydedilirken hata oluştu")
+        }
+    }
+
+    const handleTypographySave = async () => {
+        try {
+            const res = await fetch("/api/logo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(typography)
+            })
+
+            if (res.ok) {
+                const data = await res.json()
+                if (data.success) {
+                    toast.success("Tipografi ayarları güncellendi")
+                }
+            } else {
+                toast.error("Ayarlar kaydedilemedi")
+            }
+        } catch (error) {
+            console.error("Error saving typography:", error)
+            toast.error("Tipografi kaydedilirken hata oluştu")
         }
     }
 
@@ -198,14 +269,15 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
                 const data = await res.json()
                 if (res.ok) {
                     setLogoUrl(data.url)
+                    toast.success("Logo başarıyla yüklendi")
                     window.location.reload()
                 } else {
-                    alert("Logo yüklenirken hata oluştu")
+                    toast.error("Logo yüklenemedi")
                     setLogoPreview(null)
                 }
             } catch (error) {
                 console.error("Error uploading logo:", error)
-                alert("Logo yüklenirken hata oluştu")
+                toast.error("Logo yüklenirken hata oluştu")
                 setLogoPreview(null)
             } finally {
                 setIsUploadingLogo(false)
@@ -376,6 +448,179 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${showBoth ? 'translate-x-6' : 'translate-x-1'}`}
                                 />
                             </button>
+                        </div>
+                    </div>
+
+                    <div className="pt-8 border-t">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Type className="h-5 w-5" />
+                            <h2 className="text-xl font-medium">Tipografi Ayarları</h2>
+                        </div>
+
+                        <div className="space-y-8">
+                            {/* Ana Sayfa Kart Ayarları */}
+                            <div className="bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6">ÜRÜN KARTLARI (ANA SAYFA)</h3>
+                                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {/* Başlık */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Ürün Başlığı</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 17px)"
+                                                value={typography.cardTitleSize}
+                                                onChange={(e) => setTypography({ ...typography, cardTitleSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.cardTitleWeight}
+                                                onChange={(e) => setTypography({ ...typography, cardTitleWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {/* Teknik */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Teknik Bilgi</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 10px)"
+                                                value={typography.cardTechniqueSize}
+                                                onChange={(e) => setTypography({ ...typography, cardTechniqueSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.cardTechniqueWeight}
+                                                onChange={(e) => setTypography({ ...typography, cardTechniqueWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {/* Boyut */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Boyut Bilgisi</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 10px)"
+                                                value={typography.cardDetailSize}
+                                                onChange={(e) => setTypography({ ...typography, cardDetailSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.cardDetailWeight}
+                                                onChange={(e) => setTypography({ ...typography, cardDetailWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {/* Fiyat */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Fiyat</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 18px)"
+                                                value={typography.cardPriceSize}
+                                                onChange={(e) => setTypography({ ...typography, cardPriceSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.cardPriceWeight}
+                                                onChange={(e) => setTypography({ ...typography, cardPriceWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Detay Sayfası Ayarları */}
+                            <div className="bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6">ÜRÜN DETAY SAYFASI</h3>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    {/* Detay Başlık */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Ana Başlık</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 48px)"
+                                                value={typography.detailTitleSize}
+                                                onChange={(e) => setTypography({ ...typography, detailTitleSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.detailTitleWeight}
+                                                onChange={(e) => setTypography({ ...typography, detailTitleWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {/* Detay Fiyat */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Fiyat</Label>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                className="h-9 text-xs"
+                                                placeholder="Punto (örn: 30px)"
+                                                value={typography.detailPriceSize}
+                                                onChange={(e) => setTypography({ ...typography, detailPriceSize: e.target.value })}
+                                            />
+                                            <select
+                                                className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-[11px] font-medium"
+                                                value={typography.detailPriceWeight}
+                                                onChange={(e) => setTypography({ ...typography, detailPriceWeight: e.target.value })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="semibold">Semibold</option>
+                                                <option value="bold">Bold</option>
+                                                <option value="extrabold">Extrabold</option>
+                                                <option value="black">Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex justify-end">
+                            <Button onClick={handleTypographySave} className="h-11 px-8 rounded-full shadow-lg shadow-black/10">
+                                Tipografi Ayarlarını Kaydet
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -33,5 +33,22 @@ model Settings {
   logoText  String  @default("STUDIO")
   showBoth  Boolean @default(false)
   logoUrl   String?
+  
+  // Typography Settings - Card
+  cardTitleSize     String @default("17px")
+  cardTitleWeight   String @default("bold")
+  cardTechniqueSize String @default("10px")
+  cardTechniqueWeight String @default("bold")
+  cardPriceSize     String @default("18px")
+  cardPriceWeight   String @default("bold")
+  cardDetailSize    String @default("10px")
+  cardDetailWeight  String @default("bold")
+  
+  // Typography Settings - Detail Page
+  detailTitleSize   String @default("48px")
+  detailTitleWeight String @default("extrabold")
+  detailPriceSize   String @default("30px")
+  detailPriceWeight String @default("bold")
+
   updatedAt DateTime @updatedAt
 }

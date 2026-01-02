@@ -23,22 +23,51 @@ export async function GET() {
             return NextResponse.json({
                 hasLogo: false,
                 logoText: "STUDIO",
-                showBoth: false
+                showBoth: false,
+                cardTitleSize: "17px",
+                cardTitleWeight: "bold",
+                cardTechniqueSize: "10px",
+                cardTechniqueWeight: "bold",
+                cardPriceSize: "18px",
+                cardPriceWeight: "bold",
+                cardDetailSize: "10px",
+                cardDetailWeight: "bold",
+                detailTitleSize: "48px",
+                detailTitleWeight: "extrabold",
+                detailPriceSize: "30px",
+                detailPriceWeight: "bold"
             })
         }
+
+        const s = settings as any;
 
         return NextResponse.json({
             hasLogo: !!settings.logoUrl,
             url: settings.logoUrl,
             logoText: settings.logoText,
-            showBoth: settings.showBoth
+            showBoth: settings.showBoth,
+            // Typography with fallbacks for null values
+            cardTitleSize: s.cardTitleSize || "17px",
+            cardTitleWeight: s.cardTitleWeight || "bold",
+            cardTechniqueSize: s.cardTechniqueSize || "10px",
+            cardTechniqueWeight: s.cardTechniqueWeight || "bold",
+            cardPriceSize: s.cardPriceSize || "18px",
+            cardPriceWeight: s.cardPriceWeight || "bold",
+            cardDetailSize: s.cardDetailSize || "10px",
+            cardDetailWeight: s.cardDetailWeight || "bold",
+            detailTitleSize: s.detailTitleSize || "48px",
+            detailTitleWeight: s.detailTitleWeight || "extrabold",
+            detailPriceSize: s.detailPriceSize || "30px",
+            detailPriceWeight: s.detailPriceWeight || "bold"
         })
     } catch (error) {
         console.error("Critical error in logo GET:", error)
         return NextResponse.json({
             hasLogo: false,
             logoText: "STUDIO",
-            showBoth: false
+            showBoth: false,
+            cardTitleSize: "17px",
+            cardTitleWeight: "bold"
         }, { status: 200 })
     }
 }
@@ -73,8 +102,43 @@ export async function POST(req: Request) {
 
             return NextResponse.json({
                 success: true,
-                text: settings.logoText,
-                showBoth: settings.showBoth
+                ...settings
+            })
+        }
+
+        // Handle generic settings update (Typography etc.)
+        const typographyFields = [
+            'cardTitleSize', 'cardTitleWeight',
+            'cardTechniqueSize', 'cardTechniqueWeight',
+            'cardPriceSize', 'cardPriceWeight',
+            'cardDetailSize', 'cardDetailWeight',
+            'detailTitleSize', 'detailTitleWeight',
+            'detailPriceSize', 'detailPriceWeight'
+        ]
+
+        const hasTypographyUpdate = typographyFields.some(f => body[f] !== undefined)
+
+        if (hasTypographyUpdate) {
+            const updateData: any = {}
+            typographyFields.forEach(f => {
+                if (body[f] !== undefined) updateData[f] = body[f]
+            })
+
+            const settings = await db.settings.upsert({
+                where: { id: "site-settings" },
+                update: updateData,
+                create: {
+                    id: "site-settings",
+                    ...updateData
+                }
+            })
+
+            revalidatePath("/")
+            revalidatePath("/admin/dashboard")
+
+            return NextResponse.json({
+                success: true,
+                ...settings
             })
         }
 

@@ -48,11 +48,11 @@ export default async function Home() {
   const logoSettings = await getLogoSettings()
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white flex flex-col">
       <Header initialLogoData={logoSettings} />
 
       {/* Products Grid */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-24 flex-grow">
         {products.length === 0 ? (
           <div className="text-center py-32">
             <p className="text-sm text-neutral-500 tracking-wide">
@@ -71,6 +71,16 @@ export default async function Home() {
                 imageUrl={product.imageUrl}
                 isSold={product.isSold}
                 technique={product.technique}
+                settings={{
+                  cardTitleSize: logoSettings.cardTitleSize,
+                  cardTitleWeight: logoSettings.cardTitleWeight,
+                  cardTechniqueSize: logoSettings.cardTechniqueSize,
+                  cardTechniqueWeight: logoSettings.cardTechniqueWeight,
+                  cardPriceSize: logoSettings.cardPriceSize,
+                  cardPriceWeight: logoSettings.cardPriceWeight,
+                  cardDetailSize: logoSettings.cardDetailSize,
+                  cardDetailWeight: logoSettings.cardDetailWeight
+                }}
               />
             ))}
           </div>

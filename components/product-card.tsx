@@ -11,6 +11,16 @@ interface ProductCardProps {
     imageUrl: string
     isSold: boolean
     technique?: string | null
+    settings?: {
+        cardTitleSize?: string
+        cardTitleWeight?: string
+        cardTechniqueSize?: string
+        cardTechniqueWeight?: string
+        cardPriceSize?: string
+        cardPriceWeight?: string
+        cardDetailSize?: string
+        cardDetailWeight?: string
+    }
 }
 
 import { Plus } from "lucide-react"
@@ -18,7 +28,7 @@ import { useCart } from "@/context/cart-context"
 import { Button } from "@/components/ui/button"
 import { optimizeImage } from "@/lib/utils"
 
-export function ProductCard({ id, title, size, price, imageUrl, isSold, technique }: ProductCardProps) {
+export function ProductCard({ id, title, size, price, imageUrl, isSold, technique, settings }: ProductCardProps) {
     const { addToCart } = useCart()
     const optimizedImageUrl = optimizeImage(imageUrl, 600) // Optimize for typical card width
 
@@ -49,24 +59,48 @@ export function ProductCard({ id, title, size, price, imageUrl, isSold, techniqu
             <div className="px-5 py-5 flex flex-col flex-grow">
                 <div className="flex flex-col gap-1 min-h-[5rem]">
                     <Link href={`/product/${id}`}>
-                        <h3 className="text-[17px] font-bold text-neutral-900 leading-tight group-hover:text-black transition-colors">
+                        <h3
+                            className="text-[17px] font-bold text-neutral-900 leading-tight group-hover:text-black transition-colors"
+                            style={{
+                                fontSize: settings?.cardTitleSize || "17px",
+                                fontWeight: settings?.cardTitleWeight || "bold"
+                            }}
+                        >
                             {title}
                         </h3>
                     </Link>
                     <div className="flex flex-col mt-1">
                         {technique && (
-                            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]">
+                            <span
+                                className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]"
+                                style={{
+                                    fontSize: settings?.cardTechniqueSize || "10px",
+                                    fontWeight: settings?.cardTechniqueWeight || "bold"
+                                }}
+                            >
                                 {technique}
                             </span>
                         )}
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]">
+                        <span
+                            className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]"
+                            style={{
+                                fontSize: settings?.cardDetailSize || "10px",
+                                fontWeight: settings?.cardDetailWeight || "bold"
+                            }}
+                        >
                             {size}
                         </span>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 mt-auto">
-                    <span className="text-lg font-bold text-black tracking-tight">
+                    <span
+                        className="text-lg font-bold text-black tracking-tight"
+                        style={{
+                            fontSize: settings?.cardPriceSize || "18px",
+                            fontWeight: settings?.cardPriceWeight || "bold"
+                        }}
+                    >
                         {price.toLocaleString('tr-TR')} ₺
                     </span>
                     <Button

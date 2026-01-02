@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { CartProvider } from "@/context/cart-context";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -30,6 +31,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
         </CartProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );
