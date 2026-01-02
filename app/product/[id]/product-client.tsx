@@ -91,7 +91,7 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                             <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4">
                                 AÇIKLAMA
                             </h2>
-                            <p className="text-neutral-600 leading-relaxed text-lg font-medium">
+                            <p className="text-neutral-600 leading-relaxed text-lg font-medium whitespace-pre-wrap">
                                 {product.description}
                             </p>
                         </div>
