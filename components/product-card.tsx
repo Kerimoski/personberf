@@ -72,7 +72,7 @@ export function ProductCard({ id, title, size, price, imageUrl, isSold, techniqu
                     <div className="flex flex-col mt-1">
                         {technique && (
                             <span
-                                className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]"
+                                className="text-[10px] font-bold text-neutral-400 tracking-[0.1em]"
                                 style={{
                                     fontSize: settings?.cardTechniqueSize || "10px",
                                     fontWeight: settings?.cardTechniqueWeight || "bold"

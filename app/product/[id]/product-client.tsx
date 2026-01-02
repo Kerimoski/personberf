@@ -84,7 +84,7 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                             <div className="flex flex-col gap-2">
                                 {product.technique && (
                                     <div className="inline-block px-3 py-1 bg-neutral-100 rounded-full w-fit">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                        <span className="text-[10px] font-bold tracking-widest text-neutral-500">
                                             {product.technique}
                                         </span>
                                     </div>
