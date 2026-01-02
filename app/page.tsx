@@ -3,6 +3,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getLogoSettings } from "@/lib/settings"
 
+export const dynamic = "force-dynamic"
+
 interface Product {
   id: string
   title: string

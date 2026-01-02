@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 // GET single product (public)
 export async function GET(
@@ -64,6 +65,10 @@ export async function PATCH(
             }
         })
 
+        revalidatePath("/")
+        revalidatePath("/admin/dashboard")
+        revalidatePath(`/product/${id}`)
+
         return NextResponse.json(product)
     } catch (error) {
         console.error("Error updating product:", error)
@@ -93,6 +98,9 @@ export async function DELETE(
         await db.product.delete({
             where: { id }
         })
+
+        revalidatePath("/")
+        revalidatePath("/admin/dashboard")
 
         return NextResponse.json({ success: true })
     } catch (error) {
