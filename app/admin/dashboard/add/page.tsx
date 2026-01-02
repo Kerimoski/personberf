@@ -22,7 +22,8 @@ export default function AddProduct() {
         size: "",
         price: "",
         imageUrl: "",
-        imagePublicId: ""
+        imagePublicId: "",
+        technique: ""
     })
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,6 +170,20 @@ export default function AddProduct() {
                             onChange={(e) => setFormData({ ...formData, size: e.target.value })}
                             placeholder="Örn: 50x70 cm"
                             required
+                            className="h-11"
+                        />
+                    </div>
+
+                    {/* Technique */}
+                    <div className="space-y-2">
+                        <Label htmlFor="technique" className="text-sm font-medium">
+                            Teknik Bilgi
+                        </Label>
+                        <Input
+                            id="technique"
+                            value={formData.technique}
+                            onChange={(e) => setFormData({ ...formData, technique: e.target.value })}
+                            placeholder="Örn: Tuval Üzeri Yağlı Boya (Opsiyonel)"
                             className="h-11"
                         />
                     </div>

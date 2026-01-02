@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { title, description, size, price, imageUrl, imagePublicId } = body
+        const { title, description, size, price, imageUrl, imagePublicId, technique } = body
 
         // Find max order to set as the last
         const lastProduct = await db.product.findFirst({
@@ -59,6 +59,7 @@ export async function POST(req: Request) {
                 price: parseFloat(price),
                 imageUrl,
                 imagePublicId,
+                technique,
                 order: nextOrder
             }
         })

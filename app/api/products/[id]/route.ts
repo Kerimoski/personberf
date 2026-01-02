@@ -48,7 +48,7 @@ export async function PATCH(
 
         const { id } = await params
         const body = await req.json()
-        const { title, description, size, price, imageUrl, imagePublicId } = body
+        const { title, description, size, price, imageUrl, imagePublicId, technique, isPublished } = body
 
         const product = await db.product.update({
             where: { id },
@@ -58,7 +58,9 @@ export async function PATCH(
                 ...(size && { size }),
                 ...(price && { price: parseFloat(price) }),
                 ...(imageUrl && { imageUrl }),
-                ...(imagePublicId && { imagePublicId })
+                ...(imagePublicId && { imagePublicId }),
+                ...(technique !== undefined && { technique }),
+                ...(isPublished !== undefined && { isPublished })
             }
         })
 

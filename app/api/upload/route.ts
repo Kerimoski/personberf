@@ -23,10 +23,14 @@ export async function POST(req: Request) {
 
         const { file } = await req.json()
 
-        // Upload to Cloudinary
+        // Upload to Cloudinary with optimization
         const result = await cloudinary.uploader.upload(file, {
             folder: "art-products",
-            resource_type: "auto"
+            resource_type: "auto",
+            transformation: [
+                { width: 2000, height: 2000, crop: "limit" }, // Resize down if larger than 2000px
+                { quality: "auto" } // Automatic quality optimization for storage
+            ]
         })
 
         return NextResponse.json({

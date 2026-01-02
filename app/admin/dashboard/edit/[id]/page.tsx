@@ -18,6 +18,7 @@ interface Product {
     price: number
     imageUrl: string
     imagePublicId: string
+    technique?: string | null
 }
 
 export default function EditProduct({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         size: "",
         price: "",
         imageUrl: "",
-        imagePublicId: ""
+        imagePublicId: "",
+        technique: ""
     })
 
     useEffect(() => {
@@ -48,7 +50,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                     size: data.size,
                     price: data.price.toString(),
                     imageUrl: data.imageUrl,
-                    imagePublicId: data.imagePublicId
+                    imagePublicId: data.imagePublicId,
+                    technique: data.technique || ""
                 })
                 setImagePreview(data.imageUrl)
             } catch (error) {
@@ -205,6 +208,20 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                             value={formData.size}
                             onChange={(e) => setFormData({ ...formData, size: e.target.value })}
                             required
+                            className="h-11"
+                        />
+                    </div>
+
+                    {/* Technique */}
+                    <div className="space-y-2">
+                        <Label htmlFor="technique" className="text-sm font-medium">
+                            Teknik Bilgi
+                        </Label>
+                        <Input
+                            id="technique"
+                            value={formData.technique}
+                            onChange={(e) => setFormData({ ...formData, technique: e.target.value })}
+                            placeholder="Örn: Tuval Üzeri Yağlı Boya (Opsiyonel)"
                             className="h-11"
                         />
                     </div>

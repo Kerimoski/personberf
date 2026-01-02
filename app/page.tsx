@@ -13,6 +13,7 @@ interface Product {
   imagePublicId: string
   isPublished: boolean
   isSold: boolean
+  technique?: string | null
   order: number
   createdAt: string
   updatedAt: string
@@ -67,6 +68,7 @@ export default async function Home() {
                 price={product.price}
                 imageUrl={product.imageUrl}
                 isSold={product.isSold}
+                technique={product.technique}
               />
             ))}
           </div>

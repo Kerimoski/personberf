@@ -10,6 +10,7 @@ interface ProductCardProps {
     price: number
     imageUrl: string
     isSold: boolean
+    technique?: string | null
 }
 
 import { Plus } from "lucide-react"
@@ -17,7 +18,7 @@ import { useCart } from "@/context/cart-context"
 import { Button } from "@/components/ui/button"
 import { optimizeImage } from "@/lib/utils"
 
-export function ProductCard({ id, title, size, price, imageUrl, isSold }: ProductCardProps) {
+export function ProductCard({ id, title, size, price, imageUrl, isSold, technique }: ProductCardProps) {
     const { addToCart } = useCart()
     const optimizedImageUrl = optimizeImage(imageUrl, 600) // Optimize for typical card width
 
@@ -34,8 +35,8 @@ export function ProductCard({ id, title, size, price, imageUrl, isSold }: Produc
                 />
 
                 {isSold && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-                        <span className="bg-white text-black px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl scale-110">
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+                        <span className="bg-white/70 text-black/90 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl scale-110 backdrop-blur-[2px]">
                             SATILDI
                         </span>
                     </div>
@@ -45,20 +46,27 @@ export function ProductCard({ id, title, size, price, imageUrl, isSold }: Produc
             </Link>
 
             {/* Info Section - Tightly Integrated */}
-            <div className="px-5 py-5 flex flex-col gap-3">
-                <div className="flex flex-col gap-1">
+            <div className="px-5 py-5 flex flex-col flex-grow">
+                <div className="flex flex-col gap-1 min-h-[5rem]">
                     <Link href={`/product/${id}`}>
-                        <h3 className="text-[15px] font-bold text-neutral-900 leading-tight group-hover:text-black transition-colors">
+                        <h3 className="text-[17px] font-bold text-neutral-900 leading-tight group-hover:text-black transition-colors">
                             {title}
                         </h3>
                     </Link>
-                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]">
-                        {size}
-                    </span>
+                    <div className="flex flex-col mt-1">
+                        {technique && (
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]">
+                                {technique}
+                            </span>
+                        )}
+                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.1em]">
+                            {size}
+                        </span>
+                    </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-1">
-                    <span className="text-lg font-black text-black tracking-tight">
+                <div className="flex items-center justify-between pt-4 mt-auto">
+                    <span className="text-lg font-bold text-black tracking-tight">
                         {price.toLocaleString('tr-TR')} ₺
                     </span>
                     <Button

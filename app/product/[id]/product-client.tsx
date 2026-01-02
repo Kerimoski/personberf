@@ -18,6 +18,8 @@ interface Product {
     size: string
     price: number
     imageUrl: string
+    technique?: string | null
+    isSold: boolean
 }
 
 interface ProductClientProps {
@@ -66,13 +68,22 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                     {/* Product Info */}
                     <div className="flex flex-col justify-center max-w-lg">
                         <div className="mb-10">
-                            <h1 className="text-4xl font-extrabold text-black tracking-tighter mb-4 leading-tight">
+                            <h1 className="text-5xl font-extrabold text-black tracking-tighter mb-4 leading-tight">
                                 {product.title}
                             </h1>
-                            <div className="inline-block px-3 py-1 bg-neutral-100 rounded-full">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                                    {product.size}
-                                </span>
+                            <div className="flex flex-col gap-2">
+                                {product.technique && (
+                                    <div className="inline-block px-3 py-1 bg-neutral-100 rounded-full w-fit">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                            {product.technique}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className="inline-block px-3 py-1 bg-neutral-100 rounded-full w-fit">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                        {product.size}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -88,17 +99,18 @@ export function ProductClient({ initialProduct, initialLogoData }: ProductClient
                         <div className="flex flex-col sm:flex-row items-center gap-6 mt-auto pt-10 border-t border-neutral-100">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Fiyat</span>
-                                <span className="text-3xl font-black text-black">
+                                <span className="text-3xl font-bold text-black">
                                     {product.price.toLocaleString('tr-TR')} ₺
                                 </span>
                             </div>
                             <Button
                                 size="lg"
-                                onClick={() => addToCart(product)}
-                                className="w-full sm:flex-1 h-16 bg-black text-white hover:bg-neutral-800 rounded-full font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl transition-all hover:scale-105 active:scale-95"
+                                onClick={() => !product.isSold && addToCart(product)}
+                                disabled={product.isSold}
+                                className={`w-full sm:flex-1 h-16 rounded-full font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl transition-all ${product.isSold ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' : 'bg-black text-white hover:bg-neutral-800 hover:scale-105 active:scale-95'}`}
                             >
                                 <ShoppingBag className="h-5 w-5" />
-                                SEPETE EKLE
+                                {product.isSold ? "SATILDI" : "SEPETE EKLE"}
                             </Button>
                         </div>
                     </div>

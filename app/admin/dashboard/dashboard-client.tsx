@@ -24,7 +24,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Pencil, Trash2, Plus, LogOut, Upload, X, AlertCircle, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react"
+import { Pencil, Trash2, Plus, LogOut, Upload, X, AlertCircle, ChevronUp, ChevronDown, CheckCircle2, Eye, EyeOff } from "lucide-react"
 
 interface Product {
     id: string
@@ -35,6 +35,7 @@ interface Product {
     imagePublicId: string
     order: number
     isSold: boolean
+    isPublished: boolean
 }
 
 interface DashboardClientProps {
@@ -112,6 +113,22 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
             }
         } catch (error) {
             console.error("Error toggling sold status:", error)
+        }
+    }
+
+    const handleTogglePublished = async (id: string, currentStatus: boolean) => {
+        try {
+            const res = await fetch(`/api/products/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isPublished: !currentStatus })
+            })
+
+            if (res.ok) {
+                fetchProducts()
+            }
+        } catch (error) {
+            console.error("Error toggling published status:", error)
         }
     }
 
@@ -449,6 +466,17 @@ export function DashboardClient({ initialLogoData }: DashboardClientProps) {
                                             >
                                                 <CheckCircle2 className="h-4 w-4" />
                                             </Button>
+                                            {product.isSold && (
+                                                <Button
+                                                    variant={product.isPublished ? "outline" : "default"}
+                                                    size="sm"
+                                                    onClick={() => handleTogglePublished(product.id, product.isPublished)}
+                                                    className={!product.isPublished ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}
+                                                    title={product.isPublished ? "Sitede Görünür" : "Siteden Gizli"}
+                                                >
+                                                    {product.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                                </Button>
+                                            )}
                                             <Link href={`/admin/dashboard/edit/${product.id}`}>
                                                 <Button variant="outline" size="sm">
                                                     <Pencil className="h-4 w-4" />
